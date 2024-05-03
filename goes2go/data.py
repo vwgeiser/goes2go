@@ -139,7 +139,12 @@ def _goes_file_df(satellite, product, start, end, bands=None, refresh=True):
     # ----------------------------
     files = []
     for DATE in DATES:
-        files += fs.ls(f"{satellite}/{product}/{DATE:%Y/%j/%H/}", refresh=refresh)
+        # Test if the file exists on AWS S3
+        try:
+            files += fs.ls(f"{satellite}/{product}/{DATE:%Y/%j/%H/}", refresh=refresh)
+        except FileNotFoundError:
+            # If the file isn't found alert the user
+            print(f"Files for hour {DATE} not present on AWS servers")
 
     # Build a table of the files
     # --------------------------
